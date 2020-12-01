@@ -14,7 +14,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=qt5base
 PKG_VERSION:=5.15.0
 PKG_RELEASE:=1
-PKG_HASH:=bc9a21e9f6fff9629019fdf9f989f064751d5073c3a28dc596def92f4d4275c6
+PKG_HASH:=9e7af10aece15fa9500369efde69cb220eee8ec3a6818afe01ce1e7d484824c5
 
 PKG_SYS_NAME:=qtbase-everywhere-src-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SYS_NAME).tar.xz
@@ -102,7 +102,7 @@ endef
 define Package/qt5base-core
   $(call Package/qt5base/Default)
   TITLE+=core
-  DEPENDS+=+libpthread +zlib +libzstd +libpcre2-16 +libstdcpp +librt +libdouble-conversion $(ICONV_DEPENDS) +PACKAGE_icu:icu #FIXME: do not include ICONV_DEPENDS if ICU is selected (though, that's only an issue when using GNU iconv)
+  DEPENDS+=+libpthread +zlib +libzstd +libpcre2-16 +libstdcpp +librt $(ICONV_DEPENDS) +PACKAGE_icu:icu #FIXME: do not include ICONV_DEPENDS if ICU is selected (though, that's only an issue when using GNU iconv)
 endef
 
 define Package/qt5base-gui
@@ -263,11 +263,11 @@ endef
 
 ###### sql
 
-#define Package/qt5base-plugin-sqldrivers-sqlite
-#  $(call Package/qt5base/Default)
-#  TITLE+=sqldriver sqlite (plugin)
-#  DEPENDS+=+qt5base-core +qt5base-sql +libsqlite3
-#endef
+define Package/qt5base-plugin-sqldrivers-sqlite
+  $(call Package/qt5base/Default)
+  TITLE+=sqldriver sqlite (plugin)
+  DEPENDS+=+qt5base-core +qt5base-sql +libsqlite3
+endef
 
 define Package/qt5base-examples
   $(call Package/qt5base/Default)
@@ -354,7 +354,7 @@ define Build/Configure
 			--widgets=$(if $(CONFIG_PACKAGE_qt5base-widgets),yes,no) \
 			--dbus=no \
 			--accessibility=yes \
-			--doubleconversion=system \
+			--doubleconversion=qt \
 			--glib=no \
 			--eventfd=no \
 			--inotify=no \
@@ -395,16 +395,17 @@ define Build/Configure
 			--ico=$(if $(CONFIG_PACKAGE_qt5base-plugin-imageformats-ico),yes,no) \
 			--libjpeg=$(if $(CONFIG_PACKAGE_qt5base-plugin-imageformats-jpeg),system,no) \
 			--libpng=system \
+			--libmd4c=qt \
 			--sql-db2=no \
 			--sql-ibase=no \
 			--sql-mysql=no \
 			--sql-oci=no \
 			--sql-odbc=no \
 			--sql-psql=no \
-			--sql-sqlite=no \
+			--sql-sqlite=$(if $(CONFIG_PACKAGE_qt5base-plugin-sqldrivers-sqlite),yes,no) \
 			--sql-sqlite2=no \
 			--sql-tds=no \
-			--sqlite=no \
+			--sqlite=$(if $(CONFIG_PACKAGE_qt5base-plugin-sqldrivers-sqlite),yes,no) \
 	)
 endef
 
@@ -643,9 +644,9 @@ define Package/qt5base-plugin-platforms-offscreen/install
 	$(call Build/Install/Plugins,$(1),platforms,libqoffscreen)
 endef
 
-#define Package/qt5base-plugin-sqldrivers-sqlite/install
-#	$(call Build/Install/Plugins,$(1),sqldrivers,libqsqlite)
-#endef
+define Package/qt5base-plugin-sqldrivers-sqlite/install
+	$(call Build/Install/Plugins,$(1),sqldrivers,libqsqlite)
+endef
 
 define Package/qt5base-examples/install
 	$(call Build/Install/Examples,$(1))
@@ -678,6 +679,6 @@ $(eval $(call BuildPackage,qt5base-plugin-platforms-linuxfb))
 $(eval $(call BuildPackage,qt5base-plugin-platforms-minimal))
 $(eval $(call BuildPackage,qt5base-plugin-platforms-offscreen))
 $(eval $(call BuildPackage,qt5base-plugin-platforms-vnc))
-#$(eval $(call BuildPackage,qt5base-plugin-sqldrivers-sqlite))
+$(eval $(call BuildPackage,qt5base-plugin-sqldrivers-sqlite))
 $(eval $(call BuildPackage,qt5base-examples))
 $(eval $(call HostBuild))
