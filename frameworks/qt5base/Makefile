@@ -266,7 +266,7 @@ endef
 define Package/qt5base-plugin-sqldrivers-sqlite
   $(call Package/qt5base/Default)
   TITLE+=sqldriver sqlite (plugin)
-  DEPENDS+=+qt5base-core +qt5base-sql +libsqlite3
+  DEPENDS+=+qt5base-core +qt5base-sql
 endef
 
 define Package/qt5base-examples
@@ -405,7 +405,7 @@ define Build/Configure
 			--sql-sqlite=$(if $(CONFIG_PACKAGE_qt5base-plugin-sqldrivers-sqlite),yes,no) \
 			--sql-sqlite2=no \
 			--sql-tds=no \
-			--sqlite=$(if $(CONFIG_PACKAGE_qt5base-plugin-sqldrivers-sqlite),yes,no) \
+			--sqlite=$(if $(CONFIG_PACKAGE_qt5base-plugin-sqldrivers-sqlite),qt,no) \
 	)
 endef
 

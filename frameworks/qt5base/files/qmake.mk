@@ -77,6 +77,26 @@ HOST_INSTALL_DIR:=$(HOST_INSTALL_DIR_ROOT)/$(STAGING_DIR_HOST)
 QMAKE_TARGET=$(STAGING_DIR)/host/bin/qmake
 QMAKE_HOST=$(STAGING_DIR_HOST)/bin/qmake
 
+# not using sstrip for all qt stuff
+
+# strip an entire directory
+ifneq ($(CONFIG_NO_STRIP),)
+  RSTRIP:=:
+  STRIP:=:
+else
+  STRIP:=$(TARGET_CROSS)strip $(call qstrip,$(CONFIG_STRIP_ARGS))
+  RSTRIP= \
+    export CROSS="$(TARGET_CROSS)" \
+		$(if $(PKG_BUILD_ID),KEEP_BUILD_ID=1) \
+		$(if $(CONFIG_KERNEL_KALLSYMS),NO_RENAME=1) \
+		$(if $(CONFIG_KERNEL_PROFILING),KEEP_SYMBOLS=1); \
+    NM="$(TARGET_CROSS)nm" \
+    STRIP="$(STRIP)" \
+    STRIP_KMOD="$(SCRIPT_DIR)/strip-kmod.sh" \
+    PATCHELF="$(STAGING_DIR_HOST)/bin/patchelf" \
+    $(SCRIPT_DIR)/rstrip.sh
+endif
+
 define Build/Configure/Default
 	TARGET_CROSS="$(TARGET_CROSS)" \
 	TARGET_CFLAGS="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
