@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=qt5quick2-controls
 PKG_VERSION:=5.15.0
 PKG_RELEASE:=1
-PKG_HASH:=839abda9b58cd8656b2e5f46afbb484e63df466481ace43318c4c2022684648f
+PKG_HASH:=7072cf4cd27e9f18b36b1c48dec7c79608cf87ba847d3fc3de133f220ec1acee
 
 PKG_SYS_NAME:=qtquickcontrols-everywhere-src-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SYS_NAME).tar.xz
@@ -31,25 +31,25 @@ define Package/qt5quick2-controls
   TITLE:=qt5quick2-controls
   URL:=http://qt.io
   MAINTAINER:=Mirko Vogt <mirko-openwrt@nanl.de>
-  DEPENDS:=+qt5quick2-quick
+  DEPENDS:=+qt5quick2-quick +qt5base-widgets
 endef
 
-define Build/InstallDev
-	$(call Build/Install/HostFiles,$(1))
-	$(call Build/Install/Headers,$(1))
-	$(call Build/Install/Libs,$(1),*)
-endef
-
-define Package/qt5quick2-controls/install
-	$(call Build/Install/Libs,$(1),libQt5QuickTemplates)
-	$(call Build/Install/Libs,$(1),libQt5QuickControls)
-
+define Build/Install/QMLplugin
 	$(INSTALL_DIR) \
-	  $(1)/usr/lib/qt5/qml/QtQuick
+	  $(1)/$(QT_INSTALL_QML)/$(2)
 
 	$(CP) \
-	  $(PKG_INSTALL_DIR)/usr/lib/qt5/qml/QtQuick/* \
-	  $(1)/usr/lib/qt5/qml/QtQuick/
+	  $(PKG_INSTALL_DIR)/$(QT_INSTALL_QML)/$(2)/{plugins.qmltypes,qmldir,$(3).{so,qml,js}*} \
+	  $(1)/$(QT_INSTALL_QML)/$(2)/ \
+	  || true
+endef
+
+
+define Package/qt5quick2-controls/install
+	$(call Build/Install/QMLplugin,$(1),QtQuick/Controls,*)
+	$(call Build/Install/QMLplugin,$(1),QtQuick/Dialogs,*)
+	$(call Build/Install/QMLplugin,$(1),QtQuick/Extras,*)
+	$(call Build/Install/QMLplugin,$(1),QtQuick/PrivateWidgets,*)
 endef
 
 $(eval $(call BuildPackage,qt5quick2-controls))
