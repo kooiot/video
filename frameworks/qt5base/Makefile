@@ -43,7 +43,6 @@ include $(INCLUDE_DIR)/nls.mk
 include ./files/qmake.mk
 
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_PACKAGE_qt5base-plugin-imageformats-jpeg \
 	CONFIG_PACKAGE_qt5base-network \
 	CONFIG_PACKAGE_qt5base-gui \
 	CONFIG_PACKAGE_qt5base-gl \
@@ -52,7 +51,8 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_qt5base-plugin-platforms-minimal \
 	CONFIG_PACKAGE_qt5base-plugin-platforms-linuxfb \
 	CONFIG_PACKAGE_qt5base-plugin-input-libinput \
-#	CONFIG_PACKAGE_qt5base-plugin-imageformats-png \
+	CONFIG_PACKAGE_qt5base-plugin-imageformats-jpeg \
+	CONFIG_PACKAGE_qt5base-plugin-imageformats-png \
 #	CONFIG_PACKAGE_qt5base-plugin-platforms-eglfs \
 #	CONFIG_PACKAGE_qt5base-plugin-platforms-minimalegl \
 
@@ -215,11 +215,11 @@ define Package/qt5base-plugin-imageformats-jpeg
   DEPENDS+=+qt5base-core +qt5base-gui +libjpeg
 endef
 
-#define Package/qt5base-plugin-imageformats-png
-#  $(call Package/qt5base/Default)
-#  TITLE+=imageformat png (plugin)
-#  DEPENDS+=+qt5base-core +qt5base-gui +libpng
-#endef
+define Package/qt5base-plugin-imageformats-png
+  $(call Package/qt5base/Default)
+  TITLE+=imageformat png (plugin)
+  DEPENDS+=+qt5base-core +qt5base-gui +libpng
+endef
 
 ####### platforms
 
@@ -394,7 +394,7 @@ define Build/Configure
 			--gif=$(if $(CONFIG_PACKAGE_qt5base-gui),yes,no) \
 			--ico=$(if $(CONFIG_PACKAGE_qt5base-plugin-imageformats-ico),yes,no) \
 			--libjpeg=$(if $(CONFIG_PACKAGE_qt5base-plugin-imageformats-jpeg),system,no) \
-			--libpng=system \
+			--libpng=$(if $(CONFIG_PACKAGE_qt5base-plugin-imageformats-png),system,no) \
 			--libmd4c=qt \
 			--sql-db2=no \
 			--sql-ibase=no \
@@ -672,7 +672,7 @@ $(eval $(call BuildPackage,qt5base-plugin-input-evdevtouch))
 #$(eval $(call BuildPackage,qt5base-plugin-imageformats-gif))
 $(eval $(call BuildPackage,qt5base-plugin-imageformats-ico))
 $(eval $(call BuildPackage,qt5base-plugin-imageformats-jpeg))
-#$(eval $(call BuildPackage,qt5base-plugin-imageformats-png))
+$(eval $(call BuildPackage,qt5base-plugin-imageformats-png))
 $(eval $(call BuildPackage,qt5base-plugin-platforms-linuxfb))
 #$(eval $(call BuildPackage,qt5base-plugin-platforms-eglfs))
 #$(eval $(call BuildPackage,qt5base-plugin-platforms-minimalegl))
